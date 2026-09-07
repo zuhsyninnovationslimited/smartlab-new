@@ -1,0 +1,6 @@
+<?php
+use App\Models\{Experiment,Quiz,User};use Laravel\Sanctum\Sanctum;
+it('lets a student complete a quiz and simulation',function(){
+$instructor=User::factory()->create(['role'=>'instructor']);$student=User::factory()->create();$e=Experiment::create(['created_by'=>$instructor->id,'title'=>'CO2','slug'=>'co2-test','category'=>'Chemistry','simulation_type'=>'co2','summary'=>'test','theory'=>'test','objectives'=>['a'],'equipment'=>['a'],'safety_notes'=>['a'],'procedure_steps'=>['a'],'estimated_minutes'=>30,'difficulty'=>'Beginner','is_published'=>true,'accent'=>'cyan']);$q=Quiz::create(['experiment_id'=>$e->id,'title'=>'Quiz','passing_score'=>70,'attempts_allowed'=>3,'duration_minutes'=>10,'is_published'=>true]);$question=$q->questions()->create(['question'=>'Ratio?','type'=>'single','options'=>['2:1','1:1'],'correct_answer'=>'2:1','points'=>1,'sort_order'=>1]);Sanctum::actingAs($student);
+$this->postJson("/api/v1/quizzes/{$q->id}/submit",['responses'=>[(string)$question->id=>'2:1']])->assertOk()->assertJsonPath('attempt.passed',true);
+$this->postJson('/api/v1/experiments/co2-test/simulate',['parameters'=>['caco3_mass_g'=>5,'hcl_molarity'=>1,'hcl_volume_ml'=>100]])->assertOk()->assertJsonPath('results.simulation_type','co2');});

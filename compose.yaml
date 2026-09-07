@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smartlab
+      POSTGRES_USER: smartlab
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-smartlab-local-password}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartlab -d smartlab"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  simulation:
+    build: ./smart-lab-sim-api
+    restart: unless-stopped
+    environment:
+      SMART_LAB_API_KEY: ${SMART_LAB_API_KEY:-change-this-shared-service-secret}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file: .env
+    environment:
+      APP_URL: http://localhost:8080
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: smartlab
+      DB_USERNAME: smartlab
+      DB_PASSWORD: ${DB_PASSWORD:-smartlab-local-password}
+      SIMULATION_API_URL: http://simulation:8000
+      SMART_LAB_API_KEY: ${SMART_LAB_API_KEY:-change-this-shared-service-secret}
+      RUN_MIGRATIONS: "true"
+      RUN_SEEDER: "true"
+    volumes:
+      - uploads:/var/www/html/storage/app/public
+    depends_on:
+      postgres:
+        condition: service_healthy
+      simulation:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  uploads:

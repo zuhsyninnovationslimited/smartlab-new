@@ -1,0 +1,14 @@
+/.env
+**/.env
+!**/.env.example
+**/node_modules/
+**/vendor/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+frontend/dist/
+smartlab-api/storage/*.key
+smartlab-api/storage/logs/*.log
+smartlab-api/bootstrap/cache/*.php
+.DS_Store
+Thumbs.db
