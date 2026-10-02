@@ -20,7 +20,7 @@ RUN composer install \
     --optimize-autoloader
 
 
-FROM php:8.2-apache-bookworm AS runtime
+FROM php:8.3-apache-bookworm AS runtime
 
 ENV APP_ENV=production \
     APP_DEBUG=false \
