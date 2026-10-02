@@ -23,7 +23,6 @@ RUN composer install \
 FROM php:8.3-apache-bookworm AS runtime
 
 ENV APP_ENV=production \
-    APP_KEY=base64:K7m2V9xQp4Lz8Nw3Aa6Bc1De5Fg7Hi9Jk2Lm4Np6Qr8= \
     APP_DEBUG=false \
     APACHE_DOCUMENT_ROOT=/var/www/html/public \
     PORT=8080
